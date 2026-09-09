@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "litm2026"
+version = "0.1.0"
+description = "A 2026 replication of Lost in the Middle (Liu et al., TACL 2024) on current long-context models"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Arnav" }]
+keywords = ["llm", "long-context", "replication", "evaluation", "rag"]
+
+dependencies = [
+    "numpy>=1.26,<3",
+    "scipy>=1.11,<2",
+    "matplotlib>=3.8,<4",
+    "pyyaml>=6.0,<7",
+    "httpx>=0.27,<0.29",
+    "regex>=2023.10.3",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.39,<1"]
+dev = [
+    "pytest>=8.0,<9",
+    "pytest-asyncio>=0.23,<1",
+    "ruff>=0.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/Arnavdsp/lost-in-the-middle-2026"
+"Original paper" = "https://arxiv.org/abs/2307.03172"
+"Original code" = "https://github.com/nelson-liu/lost-in-the-middle"
+
+[project.scripts]
+litm-run = "litm2026.runner:main"
+litm-stats = "litm2026.stats:_main"
+litm-plot = "litm2026.plotting:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+litm2026 = ["prompts/*.prompt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["error::DeprecationWarning:litm2026.*"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# scoring.py is a verbatim port of the original paper's metrics.py.
+# Linting it into a different shape would defeat the purpose of a replication.
+[tool.ruff.lint.per-file-ignores]
+"src/litm2026/scoring.py" = ["ALL"]

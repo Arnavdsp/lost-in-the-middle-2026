@@ -1,0 +1,53 @@
+# The paper's published numbers, for side-by-side comparison with this replication.
+#
+# ---------------------------------------------------------------------------
+# READ THIS BEFORE USING THIS FILE
+# ---------------------------------------------------------------------------
+# THIS FILE SHIPS DELIBERATELY EMPTY IN THE `accuracy` COLUMN.
+#
+# The paper reports its positional results as FIGURES, not tables. Reading a
+# value off a plotted line gives you an approximation, and the honest way to
+# handle that is:
+#
+#   1. YOU open the paper (https://arxiv.org/abs/2307.03172),
+#   2. YOU read the values off the figure named in the `source` column,
+#   3. YOU fill in the `accuracy` column and set `read_from` to `figure`.
+#
+# Do not let anyone -- including an AI assistant -- fill these in for you from
+# memory. Numbers recalled rather than read are exactly the kind of thing that
+# collapses under a follow-up question in an interview, and the whole value of
+# this project is that its numbers are trustworthy.
+#
+# When you fill them in, state plainly in REPLICATION.md that these are
+# approximate values read from published figures. That sentence costs you
+# nothing and it is the difference between rigour and hand-waving.
+#
+# `precision` column: use `figure_read` for anything digitised off a plot, and
+# `exact` only for a number the paper states in text or in a table.
+# ---------------------------------------------------------------------------
+model,task,num_documents,gold_index,accuracy,precision,read_from,source,notes
+gpt-3.5-turbo,qa_positional,20,0,,figure_read,,Figure 5,
+gpt-3.5-turbo,qa_positional,20,4,,figure_read,,Figure 5,
+gpt-3.5-turbo,qa_positional,20,9,,figure_read,,Figure 5,middle position
+gpt-3.5-turbo,qa_positional,20,14,,figure_read,,Figure 5,
+gpt-3.5-turbo,qa_positional,20,19,,figure_read,,Figure 5,
+gpt-3.5-turbo,qa_closedbook,0,,,figure_read,,Figure 5,the FLOOR -- no documents
+gpt-3.5-turbo,qa_oracle,1,0,,figure_read,,Figure 5,the CEILING -- gold document only
+gpt-3.5-turbo,qa_positional,10,0,,figure_read,,Figure 5,
+gpt-3.5-turbo,qa_positional,10,4,,figure_read,,Figure 5,middle position
+gpt-3.5-turbo,qa_positional,10,9,,figure_read,,Figure 5,
+gpt-3.5-turbo,qa_positional,30,0,,figure_read,,Figure 5,
+gpt-3.5-turbo,qa_positional,30,14,,figure_read,,Figure 5,middle position
+gpt-3.5-turbo,qa_positional,30,29,,figure_read,,Figure 5,
+claude-1.3,qa_positional,20,0,,figure_read,,Figure 5,
+claude-1.3,qa_positional,20,9,,figure_read,,Figure 5,middle position
+claude-1.3,qa_positional,20,19,,figure_read,,Figure 5,
+longchat-13b-16k,qa_positional,20,0,,figure_read,,Figure 5,
+longchat-13b-16k,qa_positional,20,9,,figure_read,,Figure 5,middle position
+longchat-13b-16k,qa_positional,20,19,,figure_read,,Figure 5,
+mpt-30b-instruct,qa_positional,20,0,,figure_read,,Figure 5,
+mpt-30b-instruct,qa_positional,20,9,,figure_read,,Figure 5,middle position
+mpt-30b-instruct,qa_positional,20,19,,figure_read,,Figure 5,
+gpt-3.5-turbo,kv_retrieval,75,,,figure_read,,Figure 6,synthetic key-value task
+gpt-3.5-turbo,kv_retrieval,140,,,figure_read,,Figure 6,synthetic key-value task
+gpt-3.5-turbo,kv_retrieval,300,,,figure_read,,Figure 6,synthetic key-value task

@@ -1,0 +1,39 @@
+# The paper's released data. Not committed: it is ~700MB across all configs and
+# it is not mine to redistribute. `python scripts/download_data.py` fetches it.
+data/qa_data/
+data/kv_retrieval_data/
+data/lost-in-the-middle/
+
+# Raw API responses. The .gitkeep stays; real runs are committed DELIBERATELY,
+# per-run, with `git add -f results/raw/<run_id>` -- they are the evidence behind
+# every number in the README, so a completed run SHOULD be in the repo.
+results/raw/*
+!results/raw/.gitkeep
+
+results/figures/*
+!results/figures/.gitkeep
+
+# Secrets
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,60 @@
+# PILOT -- run this first. Always.
+#
+# n=5 across the full experiment matrix. It costs almost nothing and it catches
+# every bug that would otherwise cost you money and hours in the main run:
+# wrong model id, bad auth, a prompt that blows the context window, a scoring
+# function that silently returns 0 for everything.
+#
+#   python -m litm2026.runner --config experiments/configs/pilot.yaml
+#
+# Check `results/raw/pilot/` afterwards and READ a few raw responses by eye
+# before you trust any aggregate. A pipeline that returns well-formed garbage
+# looks identical to a working one at the summary level.
+
+run_id: pilot
+seed: 0
+n: 5
+
+# Paper's decoding settings. Do not change these for the main run.
+max_new_tokens: 100
+temperature: 0.0
+top_p: 1.0
+
+# How the paper's completion-style prompt becomes chat messages.
+# This is a DOCUMENTED DEVIATION from the original -- see REPLICATION.md.
+chat_adaptation: user_verbatim
+
+data_root: data
+results_root: results
+concurrency: 2
+timeout_s: 180.0
+max_attempts: 6
+store_prompts: true   # true in the pilot so you can eyeball exact prompts
+on_oversize: error
+
+budget:
+  max_usd: 1.0
+  max_calls: 400
+  stop_on_unknown_pricing: false   # free-tier models have no meaningful price
+
+models:
+  - key: llama70b
+    provider: groq
+    model: llama-3.3-70b-versatile
+    label: Llama 3.3 70B (Groq)
+    # VERIFY this model id against https://console.groq.com/docs/models --
+    # provider model ids change without notice.
+
+  - key: mistral_small
+    provider: mistral
+    model: mistral-small-latest
+    label: Mistral Small
+
+experiments:
+  - kind: qa_closedbook       # the FLOOR: no documents at all
+  - kind: qa_oracle           # the CEILING: gold document only
+  - kind: qa_positional
+    num_documents: 20
+    gold_indices: [0, 4, 9, 14, 19]
+  - kind: kv_retrieval
+    num_keys: 75

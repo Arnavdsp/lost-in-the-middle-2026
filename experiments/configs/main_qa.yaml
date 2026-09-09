@@ -1,0 +1,87 @@
+# MAIN MULTI-DOCUMENT QA RUN
+#
+# This is the run that produces the headline replication figure.
+#
+# RUN THE PILOT FIRST. Seriously.
+#
+#   python -m litm2026.runner --config experiments/configs/main_qa.yaml
+#
+# The runner is resumable: it checkpoints after every call, so if this dies at
+# hour two you re-run the same command and it picks up where it stopped.
+#
+# ---------------------------------------------------------------------------
+# ON n=150
+# ---------------------------------------------------------------------------
+# The original paper used all 2,655 NQ-open queries per cell. This uses 150,
+# for cost. That is a real limitation and it is stated prominently in the
+# README -- under-powering an experiment is acceptable, hiding it is not.
+#
+# Two things make 150 workable:
+#   1. `stats.mde_paired_binary` reports the minimum detectable effect for this
+#      n. Report it alongside the result and check the observed effect exceeds it.
+#   2. The SAME 150 questions run in every cell (seeded subset), so positions
+#      are compared pairwise rather than as independent samples. The paired
+#      design recovers a lot of the power that a smaller n costs you.
+#
+# If you have budget for one upgrade, raise n before you add a fourth model.
+# ---------------------------------------------------------------------------
+
+run_id: main_qa
+seed: 0
+n: 150
+
+max_new_tokens: 100
+temperature: 0.0
+top_p: 1.0
+chat_adaptation: user_verbatim
+
+data_root: data
+results_root: results
+concurrency: 2
+timeout_s: 180.0
+max_attempts: 6
+store_prompts: false   # 150 x ~25 cells x 4k tokens of prompt is a lot of disk
+on_oversize: error
+
+budget:
+  max_usd: 40.0
+  max_calls: 20000
+  stop_on_unknown_pricing: false
+
+models:
+  - key: llama70b
+    provider: groq
+    model: llama-3.3-70b-versatile
+    label: Llama 3.3 70B
+
+  - key: llama8b
+    provider: groq
+    model: llama-3.1-8b-instant
+    label: Llama 3.1 8B
+    # Same family, smaller. Isolates model SIZE from lab/training recipe.
+
+  - key: mistral_small
+    provider: mistral
+    model: mistral-small-latest
+    label: Mistral Small
+    # Different lab. This is the comparison that makes the result interesting:
+    # an effect present across labs is a property of the architecture/training
+    # paradigm, not one company's recipe.
+
+experiments:
+  # Both baselines. Without these the positional curve has no scale, and the
+  # paper's sharpest claim -- middle position falling BELOW closed-book -- is
+  # not even checkable.
+  - kind: qa_closedbook
+  - kind: qa_oracle
+
+  # The positional sweep at all three document counts.
+  - kind: qa_positional
+    num_documents: 10
+    gold_indices: [0, 4, 9]
+  - kind: qa_positional
+    num_documents: 20
+    gold_indices: [0, 4, 9, 14, 19]
+  - kind: qa_positional
+    num_documents: 30
+    gold_indices: [0, 4, 9, 14, 19, 24, 29]

@@ -1,0 +1,95 @@
+# SYNTHETIC KEY-VALUE RETRIEVAL AT LONG CONTEXT
+#
+# This is the 2026 EXTENSION -- the part that goes beyond re-running the paper.
+#
+#   python -m litm2026.runner --config experiments/configs/kv_longcontext.yaml
+#
+# ---------------------------------------------------------------------------
+# WHY THIS TASK AND NOT MULTI-DOCUMENT QA
+# ---------------------------------------------------------------------------
+# Four reasons, and you should be able to give all four in an interview:
+#
+#   1. IT CANNOT BE MEMORISED. The keys and values are random UUIDs. Natural
+#      Questions is public and predates every model you are testing, so a good
+#      score there might be recall rather than retrieval. Here it cannot be.
+#
+#   2. IT ISOLATES RETRIEVAL. No world knowledge, no reasoning, no ambiguity
+#      about whether an answer is "right". The model either returns the value
+#      for the requested key or it does not.
+#
+#   3. IT SCALES CHEAPLY. 300 key-value pairs is a large context for a small
+#      number of output tokens, so cost per unit of signal is far better than
+#      multi-document QA.
+#
+#   4. THE ORIGINAL PAPER USED IT TOO, so this is still a replication at the
+#      lengths it covered -- and an extension beyond them.
+#
+# ---------------------------------------------------------------------------
+# THE HEADLINE CHART COMES FROM THIS RUN
+# ---------------------------------------------------------------------------
+# U-shape severity (y) vs total context length (x), one line per model.
+# Run this, then:
+#   python -m litm2026.plotting --summary results/summary.csv
+# ---------------------------------------------------------------------------
+
+run_id: kv_longcontext
+seed: 0
+n: 150
+
+max_new_tokens: 100
+temperature: 0.0
+top_p: 1.0
+chat_adaptation: user_verbatim
+
+data_root: data
+results_root: results
+concurrency: 2
+timeout_s: 300.0    # longer prompts, longer time-to-first-token
+max_attempts: 6
+store_prompts: false
+on_oversize: skip   # skip cells a model cannot fit rather than aborting the run
+
+budget:
+  max_usd: 40.0
+  max_calls: 20000
+  stop_on_unknown_pricing: false
+
+models:
+  - key: llama70b
+    provider: groq
+    model: llama-3.3-70b-versatile
+    label: Llama 3.3 70B
+    max_context_tokens: 120000
+
+  - key: llama8b
+    provider: groq
+    model: llama-3.1-8b-instant
+    label: Llama 3.1 8B
+    max_context_tokens: 120000
+
+  - key: mistral_small
+    provider: mistral
+    model: mistral-small-latest
+    label: Mistral Small
+    max_context_tokens: 120000
+
+experiments:
+  # The paper's three lengths. 300 keys is roughly 30-40k tokens.
+  - kind: kv_retrieval
+    num_keys: 75
+  - kind: kv_retrieval
+    num_keys: 140
+  - kind: kv_retrieval
+    num_keys: 300
+
+# ---------------------------------------------------------------------------
+# GOING PAST 300 KEYS
+# ---------------------------------------------------------------------------
+# The paper's released data stops at 300. To push into 100k+ token territory
+# you must generate new data -- the original repo ships
+# `scripts/make_kv_retrieval_data.py` for exactly this.
+#
+# Do this ONLY after the three lengths above have run cleanly. It is the most
+# interesting result available to you and also the easiest place to burn your
+# entire rate-limit budget on prompts that get rejected for being too long.
+# ---------------------------------------------------------------------------
