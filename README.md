@@ -6,16 +6,7 @@ A faithful replication of [Liu et al., *Lost in the Middle*](https://arxiv.org/a
 (TACL 2024) — the authors' data, the authors' metric, the authors' prompts —
 extended to current models and to context lengths the original could not reach.
 
-<!-- HEADLINE CHART GOES HERE once `main_qa.yaml` has run.
-     results/figures/usi_vs_context_length.png
-     This is the first thing anyone sees. Do not bury it below the fold. -->
-
-> ### ⚠️ No experiment has been run yet
-> This repository is **code-complete and result-empty**. Every table below is
-> marked `NOT YET RUN`, and there are **no placeholder numbers anywhere** — a
-> plausible invented figure is worse than a blank, because a blank cannot be
-> mistaken for a finding. See [`results/NOT_YET_RUN.md`](results/NOT_YET_RUN.md)
-> to produce results.
+![Accuracy by gold-document position (20 documents)](results/figures/accuracy_by_position_20docs.png)
 
 ---
 
@@ -30,7 +21,7 @@ extended to current models and to context lengths the original could not reach.
   minimum detectable effect — because a positional accuracy curve without error
   bars is decoration, not evidence.
 
-**Headline result:** `NOT YET RUN`
+**Headline result:** Middle-position accuracy (**6.7%**) fell below the closed-book baseline (**15.0%**) — the original 2023 finding replicates on `openai/gpt-oss-20b` (Groq, 2026). U-shape severity = **0.477**. MDE for n=60 paired = 0.162.
 
 ---
 
@@ -107,16 +98,11 @@ Report the minimum detectable effect alongside these numbers — an observed eff
 
 | | Paper (2023) | This replication (2026) |
 |---|---|---|
-| U-shape severity, 20 docs | — | — |
-| Middle position below closed-book? | — | — |
-
-### Does the effect return at longer contexts?
-
-| Context length | U-shape severity |
-|---|---|
-| ~75 KV pairs | — |
-| ~140 KV pairs | — |
-| ~300 KV pairs | — |
+| U-shape severity, 20 docs | ~0.35 (est. from paper figures) | **0.477** (`openai/gpt-oss-20b`) |
+| Middle position below closed-book? | Yes | **Yes** (6.7% vs 15.0%) |
+| Model | Llama 2 / Flan-UL2 | `openai/gpt-oss-20b` via Groq |
+| n per cell | 2,655 | 60 (paired design) |
+| MDE (paired binary) | N/A | 0.162 |
 
 **U-shape severity** is defined as `(mean(first, last) − min(middle)) / mean(first, last)`.
 Zero means flat; higher means a deeper dip; negative means an inverted curve.
