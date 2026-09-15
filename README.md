@@ -101,17 +101,7 @@ Report the minimum detectable effect alongside these numbers — an observed eff
 <!-- RESULTS:END -->
 
 
-> `NOT YET RUN` — run `experiments/configs/main_qa.yaml`.
-
-### Accuracy by gold-document position (20 documents)
-
-| Model | Pos 0 | Pos 4 | Pos 9 | Pos 14 | Pos 19 | Closed-book | Oracle | U-shape severity |
-|---|---|---|---|---|---|---|---|---|
-| Llama 3.3 70B | — | — | — | — | — | — | — | — |
-| Llama 3.1 8B | — | — | — | — | — | — | — | — |
-| Mistral Small | — | — | — | — | — | — | — | — |
-
-All cells to carry 95% bootstrap CIs.
+![Accuracy by gold-document position (20 documents)](results/figures/accuracy_by_position_20docs.png)
 
 ### 2023 vs 2026
 

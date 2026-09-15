@@ -1,0 +1,16 @@
+{
+  "n_calls": 39,
+  "n_unpriced_calls": 39,
+  "total_input_tokens": 117825,
+  "total_output_tokens": 3866,
+  "total_tokens": 121691,
+  "total_usd": 0.0,
+  "max_usd": 1.0,
+  "max_total_tokens": null,
+  "pricing_complete": false,
+  "run_id": "main_qa_freetier",
+  "finished_utc": "2026-09-15T13:50:50.588302+00:00",
+  "calls_completed_this_session": 39,
+  "errors_this_session": 4,
+  "stopped_early": false
+}
