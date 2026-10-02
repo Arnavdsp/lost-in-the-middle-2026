@@ -4,24 +4,27 @@
 
 A faithful replication of [Liu et al., *Lost in the Middle*](https://arxiv.org/abs/2307.03172)
 (TACL 2024) — the authors' data, the authors' metric, the authors' prompts —
-extended to current models and to context lengths the original could not reach.
-
-![Accuracy by gold-document position (20 documents)](results/figures/accuracy_by_position_20docs.png)
+with an extension to current models and longer contexts planned.
 
 ---
 
 ## TL;DR
 
-- Replicates the positional-bias ("lost in the middle") effect using the
+- Built to replicate the positional-bias ("lost in the middle") effect using the
   original released data, the original `best_subspan_em` metric ported
   verbatim, and the original prompt templates vendored unchanged.
-- Adds what the 2023 study could not test: **does the effect persist, flatten,
-  or move** on 2026 long-context models, and what happens past 100k tokens.
+- Planned extension (configs written, **not run yet**): does the effect persist,
+  flatten or move on 2026 long-context models, and what happens past 100k tokens.
 - Reports bootstrap confidence intervals, paired significance tests, and a
   minimum detectable effect — because a positional accuracy curve without error
   bars is decoration, not evidence.
 
-**Headline result:** Middle-position accuracy (**6.7%**) fell below the closed-book baseline (**15.0%**) — the original 2023 finding replicates on `openai/gpt-oss-20b` (Groq, 2026). U-shape severity = **0.477**. MDE for n=60 paired = 0.162.
+**Status: the first run is not a valid result.** I ran `openai/gpt-oss-20b` on
+Groq (20 documents, n=60 per cell). Reading the raw responses showed that most
+answers were cut off before the model wrote anything: gpt-oss is a reasoning
+model, and the paper's `max_new_tokens=100` was used up by its hidden reasoning.
+The accuracy numbers below are kept as a record of that run, not as evidence
+about position. See [What went wrong in run 1](#what-went-wrong-in-run-1).
 
 ---
 
@@ -57,17 +60,17 @@ strong U-shape here.**
 | | |
 |---|---|
 | **Data** | The authors' released `qa_data/` (2,655 NQ-open examples per file) and `kv_retrieval_data/` |
-| **Configurations** | 10, 20 and 30 documents; gold positions 0/4/9/14/19 for 20 docs |
+| **Configurations** | Planned: 10, 20 and 30 documents. Run so far: 20 documents, gold positions 0/4/9/14/19 |
 | **Baselines** | Closed-book (no documents) **and** oracle (gold only) — both, so the curve has a scale |
 | **Metric** | `best_subspan_em`, ported verbatim from the original |
 | **Decoding** | Greedy, `temperature=0`, `max_new_tokens=100` |
-| **n per cell** | **150** (the original used 2,655 — reduced for cost, see below) |
+| **n per cell** | Planned **150**; run 1 used **60** (the original used 2,655 — reduced for cost, see below) |
 | **Statistics** | Bootstrap CIs (10,000 resamples), McNemar's exact test, paired bootstrap, Holm–Bonferroni |
 
-**On n=150, stated up front rather than buried:** this is a real limitation.
+**On the small n, stated up front rather than buried:** this is a real limitation.
 Two things make it workable — the *same* 150 questions run in every cell, so
 comparisons are paired rather than independent; and `stats.mde_paired_binary`
-reports the minimum detectable effect, which is published alongside the result.
+reports the minimum detectable effect (0.162 at n=60), which is published alongside the result.
 Underpowering an experiment is acceptable. Hiding it is not.
 
 ---
@@ -94,10 +97,41 @@ Report the minimum detectable effect alongside these numbers — an observed eff
 
 ![Accuracy by gold-document position (20 documents)](results/figures/accuracy_by_position_20docs.png)
 
-### 2023 vs 2026
+<sub>Run 1 data. Not valid evidence about position; see below.</sub>
 
-| | Paper (2023) | This replication (2026) |
-|---|---|---|
+### What went wrong in run 1
+
+Counted from `results/raw/main_qa_freetier/*.jsonl` (`finish_reason` and
+`response_text` of every call):
+
+| Cell | Calls | Stopped at the 100-token limit | Empty answer text |
+|---|---|---|---|
+| closed-book | 62 | 50 | 40 |
+| oracle (gold doc only) | 67 | 45 | 34 |
+| 20 docs, gold at 0 | 82 | 57 | 66 |
+| 20 docs, gold at 4 | 67 | 59 | 52 |
+| 20 docs, gold at 9 | 65 | 59 | 54 |
+| 20 docs, gold at 14 | 65 | 57 | 51 |
+| 20 docs, gold at 19 | 61 | 54 | 46 |
+
+(Call counts include retried errors.) The clearest symptom is the oracle
+baseline: with only the correct document in context the model scored 33%.
+In the raw response for the first oracle question the hidden reasoning names the
+right answer, but the visible `content` is empty because generation stopped at
+100 tokens. So these accuracies mostly measure how often the model finished
+reasoning within 100 tokens, not where the gold document was.
+
+The two numbers I first published from this run, "middle 6.7% below closed-book
+15.0%" and "U-shape severity 0.477", should not be read as a replication. The gap
+is also smaller than the MDE (0.162), so it would not have been conclusive even
+without the truncation.
+
+**Fix for run 2:** raise the output budget for reasoning models (or set the
+lowest reasoning effort), score only the visible answer, and report the
+fraction of truncated responses per cell next to accuracy so this can't be
+missed again.
+
+---|---|---|
 | U-shape severity, 20 docs | ~0.35 (est. from paper figures) | **0.477** (`openai/gpt-oss-20b`) |
 | Middle position below closed-book? | Yes | **Yes** (6.7% vs 15.0%) |
 | Model | Llama 2 / Flan-UL2 | `openai/gpt-oss-20b` via Groq |
