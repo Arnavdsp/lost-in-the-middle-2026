@@ -68,7 +68,8 @@ strong U-shape here.**
 | **Statistics** | Bootstrap CIs (10,000 resamples), McNemar's exact test, paired bootstrap, Holm–Bonferroni |
 
 **On the small n, stated up front rather than buried:** this is a real limitation.
-Two things make it workable — the *same* 150 questions run in every cell, so
+Two things make it workable — the *same* questions run in every cell (60 in run 1,
+150 planned), so
 comparisons are paired rather than independent; and `stats.mde_paired_binary`
 reports the minimum detectable effect (0.162 at n=60), which is published alongside the result.
 Underpowering an experiment is acceptable. Hiding it is not.
@@ -130,16 +131,6 @@ without the truncation.
 lowest reasoning effort), score only the visible answer, and report the
 fraction of truncated responses per cell next to accuracy so this can't be
 missed again.
-
----|---|---|
-| U-shape severity, 20 docs | ~0.35 (est. from paper figures) | **0.477** (`openai/gpt-oss-20b`) |
-| Middle position below closed-book? | Yes | **Yes** (6.7% vs 15.0%) |
-| Model | Llama 2 / Flan-UL2 | `openai/gpt-oss-20b` via Groq |
-| n per cell | 2,655 | 60 (paired design) |
-| MDE (paired binary) | N/A | 0.162 |
-
-**U-shape severity** is defined as `(mean(first, last) − min(middle)) / mean(first, last)`.
-Zero means flat; higher means a deeper dip; negative means an inverted curve.
 
 ---
 
