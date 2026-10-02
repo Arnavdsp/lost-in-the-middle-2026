@@ -5,8 +5,9 @@ What was kept identical to the original, what was changed, and why.
 This document exists because "I replicated a paper" means nothing without it.
 A replication is only as good as its account of where it deviates.
 
-**Status: no experiment has been run.** Every results table below is empty and
-marked as such. See `results/NOT_YET_RUN.md`.
+**Status: no valid run yet.** Run 1 (gpt-oss-20b, n=60) is invalid because most
+answers were truncated at the 100-token limit; see "What went wrong in run 1"
+in `README.md`. Tables below marked NOT YET RUN are still empty.
 
 ---
 

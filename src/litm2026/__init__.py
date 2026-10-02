@@ -16,8 +16,8 @@ Module map:
 * :mod:`litm2026.stats`     -- bootstrap CIs, paired tests, power, the U-shape index
 * :mod:`litm2026.plotting`  -- figures (and a refusal to draw a curve without CIs)
 
-STATUS: no experiment in this repository has been run. There are no results, and
-no placeholder numbers stand in for them. See ``results/NOT_YET_RUN.md``.
+STATUS: no valid run yet. Run 1 is kept in ``results/raw/`` but is invalid
+(answers truncated at 100 tokens); see "What went wrong in run 1" in README.md.
 """
 
 __version__ = "0.1.0"
