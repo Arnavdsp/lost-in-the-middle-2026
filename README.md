@@ -70,8 +70,8 @@ show a strong U-shape here.
 The small n is a real limitation. Two things make it workable. The same
 questions run in every cell (60 in run 1, 150 planned), so comparisons are
 paired. And `stats.mde_paired_binary` reports the minimum detectable effect
-(0.162 at n=60), which is published with the result, so an underpowered run
-is visible as one.
+(0.162 at n=60). That value is quoted in the run-1 analysis below; it isn't a
+column in the generated table yet.
 
 ---
 
@@ -175,13 +175,18 @@ python -m litm2026.runner --config experiments/configs/kv_longcontext.yaml
 # 5. Statistics and figures.
 python -m litm2026.stats  --run-dir results/raw/main_qa
 python -m litm2026.plotting --summary results/summary.csv
+
+# Or regenerate the committed run 1 without an API key:
+python -m litm2026.stats  --run-dir results/raw/main_qa_freetier
 ```
 
 Set a spend limit in your provider console before the first real run, as well
 as the `budget:` block in the config.
 
 Every raw API response is written to `results/raw/`. Once a run exists it is
-committed, so every figure can be recomputed without an API key.
+committed. Run 1's raw responses (`results/raw/main_qa_freetier/`) and
+`results/summary.csv` are in the repo, so its summary and figures can be
+recomputed without an API key.
 
 ---
 
