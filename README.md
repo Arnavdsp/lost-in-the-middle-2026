@@ -2,9 +2,9 @@
 
 **Does a 2023 finding about long-context retrieval still hold on models that advertise a million tokens?**
 
-A faithful replication of [Liu et al., *Lost in the Middle*](https://arxiv.org/abs/2307.03172)
-(TACL 2024) — the authors' data, the authors' metric, the authors' prompts —
-with an extension to current models and longer contexts planned.
+A replication of [Liu et al., *Lost in the Middle*](https://arxiv.org/abs/2307.03172)
+(TACL 2024) using the authors' data, metric and prompts, with an extension to
+current models and longer contexts planned.
 
 ---
 
@@ -13,11 +13,11 @@ with an extension to current models and longer contexts planned.
 - Built to replicate the positional-bias ("lost in the middle") effect using the
   original released data, the original `best_subspan_em` metric ported
   verbatim, and the original prompt templates vendored unchanged.
-- Planned extension (configs written, **not run yet**): does the effect persist,
+- Planned extension (configs written, not run yet): does the effect persist,
   flatten or move on 2026 long-context models, and what happens past 100k tokens.
 - Reports bootstrap confidence intervals, paired significance tests, and a
-  minimum detectable effect — because a positional accuracy curve without error
-  bars is decoration, not evidence.
+  minimum detectable effect, since a positional accuracy curve without error
+  bars can't support a conclusion.
 
 **Status: the first run is not a valid result.** I ran `openai/gpt-oss-20b` on
 Groq (20 documents, n=60 per cell). Reading the raw responses showed that most
@@ -34,9 +34,9 @@ Give a model *k* documents and a question, where exactly one document contains
 the answer and the rest are topically similar distractors. Sweep the position of
 that gold document and measure accuracy.
 
-Accuracy is **U-shaped**: high at the start, high at the end, lowest in the
-middle. In the paper's sharpest result, middle-position accuracy fell **below
-the closed-book baseline** — the model performed worse with the relevant
+Accuracy is U-shaped: high at the start, high at the end, lowest in the
+middle. In the paper's sharpest result, middle-position accuracy fell below
+the closed-book baseline: the model did worse with the relevant
 document buried in context than with no documents at all.
 
 That was measured on models with 4k–16k context windows.
@@ -44,14 +44,14 @@ That was measured on models with 4k–16k context windows.
 ## The question this repository asks
 
 Models now advertise 200k to 1M+ tokens and are explicitly trained on long
-inputs. **Is the U-shape gone?**
+inputs. Is the U-shape gone?
 
 The popular answer is "yes, needle-in-a-haystack tests are saturated." That
 answer conflates two different tasks. Needle-in-a-haystack hides one *unrelated*
-fact in filler — nothing else in the context looks like an answer. This task uses
-19 real passages *about the same topic*, so the model must discriminate, not
-merely locate. **A model can score 100% on needle-in-a-haystack and still show a
-strong U-shape here.**
+fact in filler, so nothing else in the context looks like an answer. This task
+uses 19 real passages about the same topic, so the model has to tell them apart
+as well as find them. A model can score 100% on needle-in-a-haystack and still
+show a strong U-shape here.
 
 ---
 
@@ -59,20 +59,19 @@ strong U-shape here.**
 
 | | |
 |---|---|
-| **Data** | The authors' released `qa_data/` (2,655 NQ-open examples per file) and `kv_retrieval_data/` |
-| **Configurations** | Planned: 10, 20 and 30 documents. Run so far: 20 documents, gold positions 0/4/9/14/19 |
-| **Baselines** | Closed-book (no documents) **and** oracle (gold only) — both, so the curve has a scale |
-| **Metric** | `best_subspan_em`, ported verbatim from the original |
-| **Decoding** | Greedy, `temperature=0`, `max_new_tokens=100` |
-| **n per cell** | Planned **150**; run 1 used **60** (the original used 2,655 — reduced for cost, see below) |
-| **Statistics** | Bootstrap CIs (10,000 resamples), McNemar's exact test, paired bootstrap, Holm–Bonferroni |
+| Data | The authors' released `qa_data/` (2,655 NQ-open examples per file) and `kv_retrieval_data/` |
+| Configurations | Planned: 10, 20 and 30 documents. Run so far: 20 documents, gold positions 0/4/9/14/19 |
+| Baselines | Closed-book (no documents) and oracle (gold only), so the curve has a scale |
+| Metric | `best_subspan_em`, ported verbatim from the original |
+| Decoding | Greedy, `temperature=0`, `max_new_tokens=100` |
+| n per cell | Planned 150; run 1 used 60 (the original used 2,655; reduced for cost, see below) |
+| Statistics | Bootstrap CIs (10,000 resamples), McNemar's exact test, paired bootstrap, Holm–Bonferroni |
 
-**On the small n, stated up front rather than buried:** this is a real limitation.
-Two things make it workable — the *same* questions run in every cell (60 in run 1,
-150 planned), so
-comparisons are paired rather than independent; and `stats.mde_paired_binary`
-reports the minimum detectable effect (0.162 at n=60), which is published alongside the result.
-Underpowering an experiment is acceptable. Hiding it is not.
+The small n is a real limitation. Two things make it workable. The same
+questions run in every cell (60 in run 1, 150 planned), so comparisons are
+paired. And `stats.mde_paired_binary` reports the minimum detectable effect
+(0.162 at n=60), which is published with the result, so an underpowered run
+is visible as one.
 
 ---
 
@@ -127,7 +126,7 @@ The two numbers I first published from this run, "middle 6.7% below closed-book
 is also smaller than the MDE (0.162), so it would not have been conclusive even
 without the truncation.
 
-**Fix for run 2:** raise the output budget for reasoning models (or set the
+Fix for run 2: raise the output budget for reasoning models (or set the
 lowest reasoning effort), score only the visible answer, and report the
 fraction of truncated responses per cell next to accuracy so this can't be
 missed again.
@@ -138,14 +137,12 @@ missed again.
 
 The practical payoff, independent of which way the result goes:
 
-1. **Ranking and placement are two decisions, not one.** Your retriever returns
-   an order. That is not necessarily the order to put in the prompt.
-2. **More retrieved context is not monotonically better.** There is a point
-   where adding documents costs accuracy. Find it for your setup rather than
-   filling the window because it is there.
-3. **Reranking pays twice** — better documents selected, and better positioning
-   of them.
-4. **If you must include many passages, put the highest-confidence one last**,
+1. Ranking and placement are separate decisions. The order your retriever
+   returns isn't necessarily the order to put in the prompt.
+2. More retrieved context isn't always better. At some point adding documents
+   costs accuracy; find that point for your setup instead of filling the window.
+3. Reranking helps twice: it picks better documents and lets you position them.
+4. If you have to include many passages, put the highest-confidence one last,
    nearest the question.
 
 ---
@@ -180,29 +177,27 @@ python -m litm2026.stats  --run-dir results/raw/main_qa
 python -m litm2026.plotting --summary results/summary.csv
 ```
 
-**Set a spend limit in your provider console before the first real run**, not
-just the `budget:` block in the config. Belt and braces.
+Set a spend limit in your provider console before the first real run, as well
+as the `budget:` block in the config.
 
 Every raw API response is written to `results/raw/`. Once a run exists it is
-committed, so **every figure is recomputable without an API key** — a number in
-this README whose underlying response is not in the repository would be an
-assertion, not a result.
+committed, so every figure can be recomputed without an API key.
 
 ---
 
 ## Limitations
 
-The full account is in **[REPLICATION.md](REPLICATION.md)**. The three that
-matter most:
+The full list is in [REPLICATION.md](REPLICATION.md). The three that matter
+most:
 
-1. **Data contamination.** Natural Questions is public and older than every
+1. Data contamination. Natural Questions is public and older than every
    model tested. Some answers may be recalled rather than retrieved, which could
    manufacture a flat curve that looks like a finding. The synthetic key-value
    task exists partly to bound this.
-2. **A chat-format adaptation was necessary.** The paper's models were
+2. A chat-format adaptation was necessary. The paper's models were
    completion models. `to_chat_messages()` makes the adaptation explicit and
    A/B-able, but a single template is still a single template.
-3. **The models are closed and served behind mutable endpoints.** This is a
+3. The models are closed and served behind endpoints that change. This is a
    dated snapshot, not a permanent property of these systems.
 
 ---
